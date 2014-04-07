@@ -8,40 +8,40 @@
 
 #include "DelayLine.h"
 
-void DelayLine::setLength(const float withLength, float withFs)
+void DelayLine::setLength(const float length, float fs)
 {
-    length = withLength * withFs;
-    circularBuffer = new float[length];
+    _length = length * fs;
+    _circularBuffer = new float[_length];
     clearBuffer(); // clear the buffer before we start writing into it
-    readHead = length*0.5;
-    writeHead = 0;
+    _readHead = _length*0.5;
+    _writeHead = 0;
 }
 
 void DelayLine::clearBuffer()
 {
-    for (int i = 0; i < length; i++) { // clear buffer
-        circularBuffer[(i + length) % length] = 0;
+    for (int i = 0; i < _length; i++) { // clear buffer
+        _circularBuffer[(i + _length) % _length] = 0;
     }
 }
 
 void DelayLine::advanceWriteHead()
 {
-    writeHead = (writeHead+1)%length;
+    _writeHead = (_writeHead+1)%_length;
 }
 
 void DelayLine::advanceReadHead()
 {
-    readHead = (readHead+1)%length;
+    _readHead = (_readHead+1)%_length;
 }
 
 void DelayLine::write(float withSample)
 {
-    int x = writeHead;
-    circularBuffer[x] = withSample;
+    int x = _writeHead;
+    _circularBuffer[x] = withSample;
 }
 
 float DelayLine::read()
 {
-    int x = readHead;
-    return circularBuffer[x];
+    int x = _readHead;
+    return _circularBuffer[x];
 }

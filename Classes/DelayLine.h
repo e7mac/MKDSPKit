@@ -13,11 +13,11 @@
 
 class DelayLine {
 private:
-    int length;
-    int readHead, writeHead;
-    float *circularBuffer;
+    int _length;
+    int _readHead, _writeHead;
+    float *_circularBuffer;
 public:
-    void setLength(const float withLength, float withFs);
+    void setLength(const float length, float fs);
     void clearBuffer();
     void advanceWriteHead();
     void advanceReadHead();
