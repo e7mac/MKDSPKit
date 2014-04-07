@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "MKDSPKit"
-  s.version          = "1.0.0."
+  s.version          = "1.0.0"
   s.summary          = "A set of all the DSP utility classes and extensions used in our projects."
   s.license          = 'MIT'
   s.homepage           = 'http://www.e7mac.com'
