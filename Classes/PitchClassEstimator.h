@@ -10,12 +10,25 @@
 #define __DSPLibrary__PitchClassEstimator__
 
 #include <iostream>
+#include "SimpleDelayLine.h"
 
 class PitchClassEstimator {
+private:
+    float *previousSpectrum;
+    bool bufferIsFull();
+    void process();
+    void window();
+    void zeroPad();
+    void fft();
+    void magfft();
+    void bin();
+    void maxOfBin();
 public:
-    int buffer[1000000];
-public:
-    PitchClassEstimator();
+    SimpleDelayLine delayLine;
+    PitchClassEstimator(int bufferTime, int sampleRate);
+    void write(float sample);
+
+    float pitchEstimate;
 };
 
 
