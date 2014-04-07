@@ -15,7 +15,7 @@
 class LevelEstimator
 {
 private:
-	double	b0, a1, levelEstimate;
+	double	_b0, _a1, _levelEstimate;
 public:
 	LevelEstimator();
 	void setTau(double tau, double fs);
