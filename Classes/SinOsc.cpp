@@ -13,39 +13,39 @@ SinOsc::SinOsc()
     reset();
 }
 
-void SinOsc::setSampleRate(double withSampleRate)
+void SinOsc::setSampleRate(double sampleRate)
 {
-    sampleRate = withSampleRate;
+    _sampleRate = sampleRate;
 }
 
 void SinOsc::reset()
 {
-    phase = 0.0;
+    _phase = 0.0;
 }
 
-void SinOsc::setCenterFrequency(float newFrequency)
+void SinOsc::setCenterFrequency(float frequency)
 {
-    centerFrequency = newFrequency;
+    _centerFrequency = frequency;
 }
 
 void SinOsc::setFrequency(float input)
 { // set the instantaneous frequency based on an input
-    frequency = centerFrequency * powf(2.0, input * range / 12.0);
+    _frequency = _centerFrequency * powf(2.0, input * _range / 12.0);
 }
 
-void SinOsc::setAmplitude(float withAmplitude)
+void SinOsc::setAmplitude(float amplitude)
 {
-    amplitude = withAmplitude;
+    _amplitude = amplitude;
 }
 
-void SinOsc::setRange(double withRange)
+void SinOsc::setRange(double range)
 {
-    range = withRange;
+    _range = range;
 }
 
 void SinOsc::process (float& output)
 {
-    double phaseIncrement =  frequency / sampleRate;
-    phase = fmod((phase + phaseIncrement), (1.0));
-    output = sinf(phase * 2.0 * M_PI) * amplitude;
+    double phaseIncrement =  _frequency / _sampleRate;
+    _phase = fmod((_phase + phaseIncrement), (1.0));
+    output = sinf(_phase * 2.0 * M_PI) * _amplitude;
 }

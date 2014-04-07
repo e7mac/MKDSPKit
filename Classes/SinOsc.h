@@ -15,16 +15,16 @@
 class SinOsc {
     
 protected:
-    double sampleRate, phase, centerFrequency, frequency, amplitude, range;
+    double _sampleRate, _phase, _centerFrequency, _frequency, _amplitude, _range;
     
 public:
     SinOsc();
-    void setSampleRate(double withSampleRate);
+    void setSampleRate(double sampleRate);
     void reset();
     void setCenterFrequency(float newFrequency);
     void setFrequency(float input);// set the instantaneous frequency based on an 
-    void setAmplitude(float withAmplitude);
-    void setRange(double withRange);
+    void setAmplitude(float amplitude);
+    void setRange(double range);
     void process (float& output);
 
 };
