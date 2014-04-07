@@ -14,7 +14,7 @@
 class Noise {
     
 protected:
-    float amplitude;
+    float _amplitude;
     
 public:
     void setAmplitude(float withAmplitude);

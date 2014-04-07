@@ -8,12 +8,12 @@
 
 #include "Noise.h"
 
-void Noise::setAmplitude(float withAmplitude)
+void Noise::setAmplitude(float amplitude)
 {
-    amplitude = withAmplitude;
+    _amplitude = amplitude;
 }
 
 void Noise::process(float& output)
 {
-    output = (((float)rand() / (float)RAND_MAX) * 2.0 - 1.0) * amplitude;
+    output = (((float)rand() / (float)RAND_MAX) * 2.0 - 1.0) * _amplitude;
 }
