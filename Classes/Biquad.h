@@ -13,7 +13,7 @@
 
 class Biquad {
 public:
-    double	b0, b1, b2, a1, a2, z1, z2;
+    double	_b0, _b1, _b2, _a1, _a2, _z1, _z2;
 public:
     Biquad();
     void setCoefs(double* coefs);

@@ -19,12 +19,12 @@
 
 class Compressor {
 protected:
-    float threshold,logThreshold,ratio,raisedTo;
-    LevelEstimator levelEstimator;
+    float _threshold,_logThreshold,_ratio,_raisedTo;
+    LevelEstimator _levelEstimator;
 public:
     Compressor(){};
-    Compressor(float wthreshold,float wratio, int srate);
-    void setupCompressor(float wthreshold,float wratio, int srate);
+    Compressor(float threshold,float ratio, int srate);
+    void setupCompressor(float threshold,float ratio, int srate);
     void process(float input, float&output);
 };
 
