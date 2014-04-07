@@ -16,12 +16,12 @@
 class DeadZone
 {
 protected:
-    double alpha, beta;
+    double _alpha, _beta;
     
 public:
     DeadZone();
-    void setAlpha(double withAlpha);
-    void setBeta (double withBeta );
+    void setAlpha(double alpha);
+    void setBeta (double beta);
     void process (double input, double& output);
 };
 

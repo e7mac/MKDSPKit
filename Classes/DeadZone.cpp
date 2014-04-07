@@ -10,29 +10,28 @@
 
 DeadZone::DeadZone()
 {
-    alpha = 0;
-    beta = 0;
+    _alpha = 0;
+    _beta = 0;
 }
 
-void DeadZone::setAlpha(double withAlpha)
+void DeadZone::setAlpha(double alpha)
 {
-    alpha = withAlpha;
+    _alpha = alpha;
 }
-void DeadZone::setBeta (double withBeta )
+void DeadZone::setBeta (double beta)
 {
-    beta  = withBeta ;
+    _beta  = beta;
 }
 
 void DeadZone::process (double input, double& output)
 {
-    if (input < -alpha) {
-        output = -alpha * tan(beta) + (input + alpha) * ((1 - alpha * tan(beta)) / (1 - alpha));
+    if (input < -_alpha) {
+        output = -_alpha * tan(_beta) + (input + _alpha) * ((1 - _alpha * tan(_beta)) / (1 - _alpha));
     }
-    if (input > alpha) {
-        output = alpha * tan(beta) + (input - alpha) * ((1 - alpha * tan(beta)) / (1 - alpha));
+    if (input > _alpha) {
+        output = _alpha * tan(_beta) + (input - _alpha) * ((1 - _alpha * tan(_beta)) / (1 - _alpha));
     }
-    if (fabs(input) <= alpha) {
-        output = input * tan(beta);
+    if (fabs(input) <= _alpha) {
+        output = input * tan(_beta);
     }
-    //output = (input < -alpha) * (input + alpha)/(1.0 - alpha) + (input > alpha) * (input - alpha)/(1.0 - alpha);
 }
