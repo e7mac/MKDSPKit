@@ -6,11 +6,11 @@
 //  Copyright (c) 2012 Mayank Sanganeria. All rights reserved.
 //
 
-#include "Utilities.h"
+#include "DSPUtilities.h"
 
 #include <math.h>
 
-void bilinearTransform(double acoefs[], double dcoefs[], double withFs)
+void DSPUtilities::bilinearTransform(double acoefs[], double dcoefs[], double withFs)
 {
 	float b0, b1, b2, a0, a1, a2;		//storage for continuous-time filter coefs
 	float bz0, bz1, bz2, az0, az1, az2;	// coefs for discrete-time filter.
@@ -51,7 +51,7 @@ void bilinearTransform(double acoefs[], double dcoefs[], double withFs)
 }
 
 //------------------------------------------------------------------------------
-void designParametric(double* dcoefs, double center, double gain, double qval, double withFs)
+void DSPUtilities::designParametric(double* dcoefs, double center, double gain, double qval, double withFs)
 // design parametric filter based on input center frequency, gain, Q and sampling rate
 {
 	double b0, b1, b2, a0, a1, a2;		//storage for continuous-time filter coefs
@@ -92,7 +92,7 @@ void designParametric(double* dcoefs, double center, double gain, double qval, d
 }
 
 //------------------------------------------------------------------------------
-void designFirstOrderLowpass(double* dcoefs, double cutoff, double withFs)
+void DSPUtilities::designFirstOrderLowpass(double* dcoefs, double cutoff, double withFs)
 // design parametric filter based on input center frequency, gain, Q and sampling rate
 {
 	double b0, b1, b2, a0, a1, a2;		//storage for continuous-time filter coefs
@@ -126,7 +126,7 @@ void designFirstOrderLowpass(double* dcoefs, double cutoff, double withFs)
 
 
 //------------------------------------------------------------------------------
-void designFirstOrderHighpass(double* dcoefs, double cutoff, double withFs)
+void DSPUtilities::designFirstOrderHighpass(double* dcoefs, double cutoff, double withFs)
 // design parametric filter based on input center frequency, gain, Q and sampling rate
 {
 	double b0, b1, b2, a0, a1, a2;		//storage for continuous-time filter coefs
