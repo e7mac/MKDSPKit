@@ -15,11 +15,10 @@
 class SoftClip
 {
 public:
-    float n;
-    
+    float _n;
 public:
     SoftClip();
-    void setN(float withN);
+    void setN(float n);
     void process (float input, float& output);
 };
 

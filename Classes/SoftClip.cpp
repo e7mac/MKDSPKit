@@ -15,12 +15,12 @@ SoftClip::SoftClip()
 
 void SoftClip::setN(float withN)
 {
-    n = withN;
+    _n = withN;
 }
 
 void SoftClip::process (float input, float& output)
 {
-    output = input / pow(1 + pow(fabs(input), n), 1/n);
+    output = input / pow(1 + pow(fabs(input), _n), 1/_n);
     //optimized for pedipadproc
     //        output = input / 1 + fabsf(input);
 }
