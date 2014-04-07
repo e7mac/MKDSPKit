@@ -14,7 +14,7 @@
 
 class PitchClassEstimator {
 private:
-    float *previousSpectrum;
+    float *_previousSpectrum;
     bool bufferIsFull();
     void process();
     void window();

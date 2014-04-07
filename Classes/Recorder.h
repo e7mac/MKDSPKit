@@ -13,15 +13,15 @@
 
 class Recorder {
 private:
-    int length;
-    int readHead, writeHead;
-    float *buffer;
+    int _length;
+    int _readHead, _writeHead;
+    float *_buffer;
 public:
-    void setLength(const float withLength, float withFs);
+    void setLength(const float length, float fs);
     void clearBuffer();
     void advanceWriteHead();
     void advanceReadHead();
-    void write(float withSample);
+    void write(float sample);
     float read();
 };
 
