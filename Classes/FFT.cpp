@@ -16,26 +16,26 @@ FFT::FFT(int nPointLength)
 
 void FFT::setN(int withN)
 {
-    N = withN;
-    logN = log2f(N);
-    fftSetup = vDSP_create_fftsetup(logN, kFFTRadix2);
+    _N = withN;
+    _logN = log2f(_N);
+    _fftSetup = vDSP_create_fftsetup(_logN, kFFTRadix2);
 
     //input output buffers
-    x = new float[N];
-    y = new float[N];
+    _x = new float[_N];
+    _y = new float[_N];
 
     // We need complex buffers in two different formats!
-    tempComplex = new DSPComplex[N/2];
+    _tempComplex = new DSPComplex[_N/2];
     
-    tempSplitComplex.realp = new float[N/2];
-    tempSplitComplex.imagp = new float[N/2];
+    _tempSplitComplex.realp = new float[_N/2];
+    _tempSplitComplex.imagp = new float[_N/2];
     
     // For polar coordinates
-    intermediateMag = new float[N/2];
-    intermediatePhase = new float[N/2];
+    _intermediateMag = new float[_N/2];
+    _intermediatePhase = new float[_N/2];
     
-    mag = new float[N/2 + 1];
-    phase = new float[N/2 + 1];
+    _mag = new float[_N/2 + 1];
+    _phase = new float[_N/2 + 1];
 
 }
 
@@ -45,9 +45,9 @@ void FFT::setSignal()
 //    int BIN = 3;
 //    for (int k = 0; k < N; k++)
 //        x[k] = cos(2*M_PI*BIN*k/N);
-    for (int k = 0; k < N; k++)
-        x[k] = 1;
-    x[0] = 1;
+    for (int k = 0; k < _N; k++)
+        _x[k] = 1;
+    _x[0] = 1;
 }
 
 void FFT::forwardFFT()
@@ -57,10 +57,10 @@ void FFT::forwardFFT()
     
     // Scramble-pack the real data into complex buffer in just the way that's
     // required by the real-to-complex FFT function that follows.
-    vDSP_ctoz((DSPComplex*)x, 2, &tempSplitComplex, 1, N/2);
+    vDSP_ctoz((DSPComplex*)_x, 2, &_tempSplitComplex, 1, _N/2);
     
     // Do real->complex forward FFT
-    vDSP_fft_zrip(fftSetup, &tempSplitComplex, 1, logN, kFFTDirection_Forward);
+    vDSP_fft_zrip(_fftSetup, &_tempSplitComplex, 1, _logN, kFFTDirection_Forward);
     
     // Print the complex spectrum. Note that since it's the FFT of a real signal,
     // the spectrum is conjugate symmetric, that is the negative frequency components
@@ -75,9 +75,9 @@ void FFT::forwardFFT()
     // of the first complex value (even though they are both in fact real values). Try
     // replacing BIN above with N/2 to see how sinusoid at Nyquist appears in the spectrum.
     printf("\nSpectrum:\n");
-    for (int k = 0; k < N/2; k++)
+    for (int k = 0; k < _N/2; k++)
     {
-        printf("%3d\t%6.2f\t%6.2f\n", k, tempSplitComplex.realp[k], tempSplitComplex.imagp[k]);
+        printf("%3d\t%6.2f\t%6.2f\n", k, _tempSplitComplex.realp[k], _tempSplitComplex.imagp[k]);
     }
     
     // ----------------------------------------------------------------
@@ -88,41 +88,38 @@ void FFT::forwardFFT()
     // Note that when printing out the values below, we ignore bin zero, as the
     // real/complex values for bin zero in tempSplitComplex actually both correspond
     // to real spectrum values for bins 0 (DC) and N/2 (Nyquist) respectively.
-    vDSP_zvabs(&tempSplitComplex, 1, intermediateMag, 1, N/2);
-    vDSP_zvphas(&tempSplitComplex, 1, intermediatePhase, 1, N/2);
+    vDSP_zvabs(&_tempSplitComplex, 1, _intermediateMag, 1, _N/2);
+    vDSP_zvphas(&_tempSplitComplex, 1, _intermediatePhase, 1, _N/2);
 
     
-    mag[0] = intermediateMag[0];
-    phase[0] = 0;
-    for (int k = 1; k < N/2; k++)
-    {
-        mag[k] = intermediateMag[k];
-        phase[k] = intermediatePhase[k];
+    _mag[0] = _intermediateMag[0];
+    _phase[0] = 0;
+    for (int k = 1; k < _N/2; k++) {
+        _mag[k] = _intermediateMag[k];
+        _phase[k] = _intermediatePhase[k];
     }
-    mag[N/2] = intermediatePhase[0];
-    phase[N/2] = 0;
+    _mag[_N/2] = _intermediatePhase[0];
+    _phase[_N/2] = 0;
     
     printf("\nMag / Phase:\n");
-    for (int k = 1; k < N/2; k++)
-    {
-        printf("%3d\t%6.2f\t%6.2f\n", k, intermediateMag[k], intermediatePhase[k]);
+    for (int k = 1; k < _N/2; k++) {
+        printf("%3d\t%6.2f\t%6.2f\n", k, _intermediateMag[k], _intermediatePhase[k]);
     }
 
     printf("\nMag / Phase:\n");
-    for (int k = 1; k < N/2; k++)
-    {
-        printf("%3d\t%6.2f\t%6.2f\n", k, mag[k], phase[k]);
+    for (int k = 1; k < _N/2; k++) {
+        printf("%3d\t%6.2f\t%6.2f\n", k, _mag[k], _phase[k]);
     }
     
     // ----------------------------------------------------------------
     // Convert from polar coordinates back to rectangular coordinates.
     
-    tempSplitComplex.realp = intermediateMag;
-    tempSplitComplex.imagp = intermediatePhase;
+    _tempSplitComplex.realp = _intermediateMag;
+    _tempSplitComplex.imagp = _intermediatePhase;
     
-    vDSP_ztoc(&tempSplitComplex, 1, tempComplex, 2, N/2);
-    vDSP_rect((float*)tempComplex, 2, (float*)tempComplex, 2, N/2);
-    vDSP_ctoz(tempComplex, 2, &tempSplitComplex, 1, N/2);
+    vDSP_ztoc(&_tempSplitComplex, 1, _tempComplex, 2, _N/2);
+    vDSP_rect((float*)_tempComplex, 2, (float*)_tempComplex, 2, _N/2);
+    vDSP_ctoz(_tempComplex, 2, &_tempSplitComplex, 1, _N/2);
 }
 
 void FFT::inverseFFT()
@@ -131,18 +128,18 @@ void FFT::inverseFFT()
     // Do Inverse FFT
     
     // Do complex->real inverse FFT.
-    vDSP_fft_zrip(fftSetup, &tempSplitComplex, 1, logN, kFFTDirection_Inverse);
+    vDSP_fft_zrip(_fftSetup, &_tempSplitComplex, 1, _logN, kFFTDirection_Inverse);
     
     // This leaves result in packed format. Here we unpack it into a real vector.
-    vDSP_ztoc(&tempSplitComplex, 1, (DSPComplex*)y, 2, N/2);
+    vDSP_ztoc(&_tempSplitComplex, 1, (DSPComplex*)_y, 2, _N/2);
     
     // Neither the forward nor inverse FFT does any scaling. Here we compensate for that.
-    float scale = 0.5/N;
-    vDSP_vsmul(y, 1, &scale, y, 1, N);
+    float scale = 0.5/_N;
+    vDSP_vsmul(_y, 1, &scale, _y, 1, _N);
     // Assuming it's all correct, the input x and output y vectors will have identical values
     printf("\nInput & output:\n");
-    for (int k = 0; k < N; k++)
+    for (int k = 0; k < _N; k++)
     {
-        printf("%3d\t%6.2f\t%6.2f\n", k, x[k], y[k]);
+        printf("%3d\t%6.2f\t%6.2f\n", k, _x[k], _y[k]);
     }
 }

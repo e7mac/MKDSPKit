@@ -14,23 +14,19 @@
 
 class FFT {
 private:
-    int N;
-    int logN;
-    FFTSetup fftSetup;
-    float *x;
-    float *y;
+    int _N;
+    int _logN;
+    FFTSetup _fftSetup;
+    float *_x;
+    float *_y;
     // We need complex buffers in two different formats!
-    DSPComplex *tempComplex;
-    DSPSplitComplex tempSplitComplex;
-    
+    DSPComplex *_tempComplex;
+    DSPSplitComplex _tempSplitComplex;
     // For polar coordinates
-    float *intermediateMag;
-    float *intermediatePhase;
-    
-    float *mag;
-    float *phase;
-    
-    
+    float *_intermediateMag;
+    float *_intermediatePhase;
+    float *_mag;
+    float *_phase;
     void setN(int withN);
 public:
     FFT(int nPointLength);
