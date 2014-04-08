@@ -9,11 +9,6 @@
 #include "ParametricFilter.h"
 #include "DSPUtilities.h"
 
-ParametricFilter::ParametricFilter()
-{
-    
-}
-
 ParametricFilter::ParametricFilter(int center, int gain, int q, int fs)
 {
     DSPUtilities::designParametric(_coefs, center, gain, q, fs);

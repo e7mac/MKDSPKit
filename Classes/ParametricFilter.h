@@ -17,7 +17,6 @@ public:
     double _coefs[6];
     Biquad _eq;
 public:
-    ParametricFilter();
     ParametricFilter(int center, int gain, int q, int fs);
     void reset();
     void process (float input, float& output);

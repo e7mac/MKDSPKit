@@ -9,11 +9,6 @@
 #include "HighPassFilter.h"
 #include "DSPUtilities.h"
 
-HighPassFilter::HighPassFilter()
-{
-    
-}
-
 HighPassFilter::HighPassFilter(int cutoff, int fs)
 {
     DSPUtilities::designFirstOrderHighpass(_coefs, cutoff, fs);

@@ -17,7 +17,6 @@ public:
     double _coefs[6];
     Biquad _eq;
 public:
-    HighPassFilter();
     HighPassFilter(int cutoff, int fs);
     void reset();
     void process (float input, float& output);

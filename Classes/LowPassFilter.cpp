@@ -9,11 +9,6 @@
 #include "LowPassFilter.h"
 #include "DSPUtilities.h"
 
-LowPassFilter::LowPassFilter()
-{
-
-}
-
 LowPassFilter::LowPassFilter(int cutoff, int fs)
 {
     DSPUtilities::designFirstOrderLowpass(_coefs, cutoff, fs);
