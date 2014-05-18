@@ -34,20 +34,17 @@ void FFT::setN(int withN)
     _intermediateMag = new float[_N/2];
     _intermediatePhase = new float[_N/2];
     
-    _mag = new float[_N/2 + 1];
-    _phase = new float[_N/2 + 1];
+    _mag = new float[_N];
+    _phase = new float[_N];
 
 }
 
 void FFT::setSignal()
 {
-//    // Initialize the input buffer with a sinusoid
-//    int BIN = 3;
-//    for (int k = 0; k < N; k++)
-//        x[k] = cos(2*M_PI*BIN*k/N);
     for (int k = 0; k < _N; k++)
-        _x[k] = 1;
-    _x[0] = 1;
+        _x[k] = k+1;
+    _x[1] = -2;
+    _x[6] = -7;
 }
 
 void FFT::forwardFFT()
@@ -93,7 +90,9 @@ void FFT::forwardFFT()
 
     
     _mag[0] = _intermediateMag[0];
-    _phase[0] = 0;
+    _mag[_N-1] = _intermediatePhase[0];
+    
+
     for (int k = 1; k < _N/2; k++) {
         _mag[k] = _intermediateMag[k];
         _phase[k] = _intermediatePhase[k];
@@ -101,7 +100,7 @@ void FFT::forwardFFT()
     _mag[_N/2] = _intermediatePhase[0];
     _phase[_N/2] = 0;
     
-    printf("\nMag / Phase:\n");
+    printf("Intermed \nMag / Phase:\n");
     for (int k = 1; k < _N/2; k++) {
         printf("%3d\t%6.2f\t%6.2f\n", k, _intermediateMag[k], _intermediatePhase[k]);
     }
@@ -120,6 +119,15 @@ void FFT::forwardFFT()
     vDSP_ztoc(&_tempSplitComplex, 1, _tempComplex, 2, _N/2);
     vDSP_rect((float*)_tempComplex, 2, (float*)_tempComplex, 2, _N/2);
     vDSP_ctoz(_tempComplex, 2, &_tempSplitComplex, 1, _N/2);
+
+    _intermediateMag = _tempSplitComplex.realp;
+    _intermediatePhase = _tempSplitComplex.imagp;
+    
+    printf("Intermed \nMag / Phase:\n");
+    for (int k = 1; k < _N/2; k++) {
+        printf("%3d\t%6.2f\t%6.2f\n", k, _intermediateMag[k], _intermediatePhase[k]);
+    }
+
 }
 
 void FFT::inverseFFT()
