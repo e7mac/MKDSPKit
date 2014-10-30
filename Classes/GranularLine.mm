@@ -74,7 +74,7 @@ float GranularLine::readGrain(int i) {
 
 float GranularLine::getWindow(float x)
 {
-    if (x>1)
+    if (x>1 || isnan(x))
         return 0.0;
     int index = x*length;
     return cosValues[index];
