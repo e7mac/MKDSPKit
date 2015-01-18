@@ -9,6 +9,8 @@
 #ifndef __GrainProc__SimpleDelayLine__
 #define __GrainProc__SimpleDelayLine__
 
+#include <iostream>
+
 class SimpleDelayLine {
 public:
     
@@ -19,8 +21,10 @@ public:
     void setLength(const float withLength, float withFs);
     void clearBuffer();
     void advanceWriteHead();
+    void advanceWriteHead(int numPositions);
     void advanceReadHead();
     void write(float withSample);
+    void write(float *startSample, int numSamples);
     float read();
 };
 

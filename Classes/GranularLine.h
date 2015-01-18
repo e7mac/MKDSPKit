@@ -19,6 +19,7 @@ struct Grain
     int readHead;
     bool isActive;
     float currentNumGrainsAmplitude;
+    int direction;
 };
 
 class GranularLine
@@ -37,17 +38,22 @@ public:
     float maxSpread = 0.5; // tweak this later
     int srate;
     float readSpeed = 1;
-    
+    float gain = 1;
+    float avgGrainLengthInMS = 100;
 public:
     void resetGrain(int i);
     void setLength(const float withLength, float withFs);
     void clearBuffer();
     void advanceWriteHead();
+    void advanceWriteHead(int numSamples);
     void write(float withSample);
+    void write(float *firstSample, int numSamples);
     float readGrain(int i);
+    float readGrain(int grainNum, int numSamples, float* destination);
     float getWindow(float x);
     void populateWindow();
     void setRate(float withRate);
+  void setBackwardDirectionFraction(float fraction);
 };
 
 

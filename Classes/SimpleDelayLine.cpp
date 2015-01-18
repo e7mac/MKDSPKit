@@ -22,6 +22,10 @@ void SimpleDelayLine::clearBuffer() {
     }
 }
 
+void SimpleDelayLine::advanceWriteHead(int numPositions) {
+  writeHead = (writeHead+numPositions)%length;
+}
+
 void SimpleDelayLine::advanceWriteHead() {
     writeHead = (writeHead+1)%length;
 }
@@ -34,6 +38,19 @@ void SimpleDelayLine::write(float withSample) {
     int x = writeHead;
     circularBuffer[x] = withSample;
 }
+
+void SimpleDelayLine::write(float *firstSample, int numSamples) {
+  int samplesFromStart = 0;
+  int samplesTillEnd = length - writeHead;
+  if (numSamples <= samplesTillEnd) {
+    samplesTillEnd = numSamples;
+  } else {
+    samplesFromStart = numSamples - samplesTillEnd;
+  }
+  memcpy(&circularBuffer[writeHead], firstSample, samplesTillEnd*sizeof(float));
+  memcpy(&circularBuffer[0], &firstSample[samplesTillEnd], samplesFromStart*sizeof(float));
+}
+
 
 float SimpleDelayLine::read() {
     int x = readHead;
