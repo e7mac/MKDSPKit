@@ -40,6 +40,10 @@ public:
     float readSpeed = 1;
     float gain = 1;
     float avgGrainLengthInMS = 100;
+    float backwardDensity = 0;
+  
+    float readSpeedVariation = 0;
+    float readSpeedDirectionPercentage = 0.5;
 public:
     void resetGrain(int i);
     void setLength(const float withLength, float withFs);

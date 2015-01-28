@@ -51,6 +51,7 @@ void GranularLine::setLength(const float withLength, float withFs) {
 
 void GranularLine::setBackwardDirectionFraction(float fraction)
 {
+  backwardDensity = fraction;
   for (int i=0;i<numGrains;i++) {
     BOOL backward = arc4random_uniform(1) < fraction;
     grains[i].direction = backward ? -1 : 1;
@@ -92,7 +93,10 @@ void GranularLine::write(float *firstSample, int numSamples) {
 
 float GranularLine::readGrain(int i) {
     float window = getWindow((float)grains[i].elapsed/grains[i].grainLength);
-    grains[i].elapsed += readSpeed;
+  
+    int direction =  (arc4random_uniform(100)/100. > readSpeedDirectionPercentage) ? 1 : -1;
+    float variation = arc4random_uniform(readSpeedVariation*44100)/44100.;
+    grains[i].elapsed += readSpeed * (1 + direction*variation);
     int bufferPosition = (int)(grains[i].readHead+grains[i].direction*grains[i].elapsed)%length;
     if (bufferPosition < 0) {
       bufferPosition += length;
