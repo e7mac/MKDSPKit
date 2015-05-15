@@ -114,26 +114,6 @@ float GranularLine::readGrain(int i) {
 
 void GranularLine::readGrain(int grainNum, int numSamples, float* destination) {
   float output[numSamples];
-
-////  int direction =  (arc4random_uniform(100)/100. > readSpeedDirectionPercentage) ? 1 : -1;
-////  float variation = arc4random_uniform(readSpeedVariation*44100)/44100.;
-//  for (int i=0;i<numSamples;i++) {
-////    grains[grainNum].elapsed += readSpeed * (1 + direction*variation);
-//    float window = getWindow((float)grains[grainNum].elapsed/grains[grainNum].grainLength);
-//    window = 1;
-//    grains[grainNum].elapsed += readSpeed;
-//    int bufferPosition = (int)(grains[grainNum].readHead+grains[grainNum].direction*grains[grainNum].elapsed)%length;
-//    if (bufferPosition < 0) {
-//      bufferPosition += length;
-//    }
-//    float sample = 0;
-//    sample = window * circularBuffer[bufferPosition];
-//    if (grains[grainNum].elapsed>=grains[grainNum].grainLength) {
-//      resetGrain(grainNum);
-//    }
-//    output[i] = sample;
-//  }
-
   int processedSamples = 0;
   while (processedSamples < numSamples) {
     int remainingSamples = (numSamples - processedSamples);
@@ -174,7 +154,6 @@ void GranularLine::readGrain(int grainNum, int numSamples, float* destination) {
     vDSP_vmul(window, 1, &output[processedSamples], 1, &output[processedSamples], 1, samplesToCopy);
     processedSamples += samplesToCopy;
   }
-  
   float grainAmplitude = gain * grains[grainNum].currentNumGrainsAmplitude;
   vDSP_vsmul(output, 1, &grainAmplitude, destination, 1, numSamples);
 }
