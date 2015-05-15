@@ -9,7 +9,7 @@
 //
 
 #include "GranularLine.h"
-
+#import <Accelerate/Accelerate.h>
 
 void GranularLine::resetGrain(int i)
 {
@@ -24,7 +24,10 @@ void GranularLine::resetGrain(int i)
     
     grains[i].readHead = (writeHead - delay + length)%length;
     grains[i].grainLength = (int)((avgGrainLengthInMS/2 + rand()%(int)(1.5*avgGrainLengthInMS)) * srate * 0.001);
-    
+    // ensure grains don't wrap around audio buffer
+    if (grains[i].readHead + grains[i].grainLength > length) {
+      grains[i].readHead -= grains[i].grainLength;
+    }
     grains[i].elapsed = 0;
     if (i <= numGrains)
         grains[i].isActive = 1;
@@ -109,19 +112,81 @@ float GranularLine::readGrain(int i) {
     return gain*sample*grains[i].currentNumGrainsAmplitude;
 }
 
-float GranularLine::readGrain(int grainNum, int numSamples, float* destination) {
-  // handle rates
-  float windowFraction = (float)grains[grainNum].elapsed/grains[grainNum].grainLength;
-  float window = getWindow(windowFraction);
-  grains[grainNum].elapsed += readSpeed;
-  int bufferPosition = (int)(grains[grainNum].readHead+grains[grainNum].elapsed)%length;
-  float sample = window * circularBuffer[bufferPosition];
-  if (grains[grainNum].elapsed>=grains[grainNum].grainLength) {
-    resetGrain(grainNum);
+void GranularLine::readGrain(int grainNum, int numSamples, float* destination) {
+  float output[numSamples];
+
+////  int direction =  (arc4random_uniform(100)/100. > readSpeedDirectionPercentage) ? 1 : -1;
+////  float variation = arc4random_uniform(readSpeedVariation*44100)/44100.;
+//  for (int i=0;i<numSamples;i++) {
+////    grains[grainNum].elapsed += readSpeed * (1 + direction*variation);
+//    float window = getWindow((float)grains[grainNum].elapsed/grains[grainNum].grainLength);
+//    window = 1;
+//    grains[grainNum].elapsed += readSpeed;
+//    int bufferPosition = (int)(grains[grainNum].readHead+grains[grainNum].direction*grains[grainNum].elapsed)%length;
+//    if (bufferPosition < 0) {
+//      bufferPosition += length;
+//    }
+//    float sample = 0;
+//    sample = window * circularBuffer[bufferPosition];
+//    if (grains[grainNum].elapsed>=grains[grainNum].grainLength) {
+//      resetGrain(grainNum);
+//    }
+//    output[i] = sample;
+//  }
+
+  int processedSamples = 0;
+  while (processedSamples < numSamples) {
+    int remainingSamples = numSamples - processedSamples;
+    int bufferPosition = grains[grainNum].readHead+grains[grainNum].elapsed;
+    int samplesToCopy = 0;
+    float startFraction = 0;
+    float endFraction = 0;
+    
+    startFraction = grains[grainNum].elapsed / grains[grainNum].grainLength;
+    
+    if (remainingSamples + grains[grainNum].elapsed == grains[grainNum].grainLength) {
+      samplesToCopy = remainingSamples;
+      endFraction = (samplesToCopy + grains[grainNum].elapsed) / grains[grainNum].grainLength;
+      resetGrain(grainNum);
+    } else if (remainingSamples + grains[grainNum].elapsed < grains[grainNum].grainLength) {
+      samplesToCopy = remainingSamples;
+      endFraction = (samplesToCopy + grains[grainNum].elapsed) / grains[grainNum].grainLength;
+    } else if (remainingSamples + grains[grainNum].elapsed > grains[grainNum].grainLength) {
+      int remainingSamplesInGrain = grains[grainNum].grainLength - grains[grainNum].elapsed;
+      samplesToCopy = remainingSamplesInGrain;
+      endFraction = (samplesToCopy + grains[grainNum].elapsed) / grains[grainNum].grainLength;
+      resetGrain(grainNum);
+    }
+    float window[samplesToCopy];
+    getWindow(window, startFraction, endFraction, samplesToCopy);
+    vDSP_vmul(window, 1, &output[processedSamples], 1, &output[processedSamples], 1, samplesToCopy);
+    memcpy(&output[processedSamples], &circularBuffer[bufferPosition], samplesToCopy*sizeof(float));
+    processedSamples += samplesToCopy;
+    grains[grainNum].elapsed += samplesToCopy;
   }
-  memcpy(destination, &circularBuffer[bufferPosition], numSamples*sizeof(float));
-  return gain*sample*grains[grainNum].currentNumGrainsAmplitude;
+  
+  float grainAmplitude = gain * grains[grainNum].currentNumGrainsAmplitude;
+  vDSP_vsmul(output, 1, &grainAmplitude, output, 1, numSamples);
+  memcpy(destination, output, numSamples*sizeof(float));
 }
+
+void GranularLine::getWindow(float *destination, float startFraction, float endFraction, int count)
+{
+  if (startFraction < 0 || isnan(startFraction)) {
+    startFraction = 0;
+  }
+  if (endFraction > 1 || isnan(endFraction)) {
+    endFraction = 1;
+  }
+  float fractionDiff = endFraction - startFraction;
+  float fractionIncrement = fractionDiff / (count - 1);
+  float interpolationVector[count];
+  vDSP_vramp(&startFraction, &fractionIncrement, interpolationVector, 1, count);
+  float l = length;
+  vDSP_vsmul(interpolationVector, 1, &l, interpolationVector, 1, count);
+  vDSP_vlint(cosValues, interpolationVector, 1, destination, 1, count, length);
+}
+
 
 
 float GranularLine::getWindow(float x)

@@ -53,8 +53,9 @@ public:
     void write(float withSample);
     void write(float *firstSample, int numSamples);
     float readGrain(int i);
-    float readGrain(int grainNum, int numSamples, float* destination);
+    void readGrain(int grainNum, int numSamples, float* destination);
     float getWindow(float x);
+    void getWindow(float *destination, float startIndex, float endIndex, int count);
     void populateWindow();
     void setRate(float withRate);
   void setBackwardDirectionFraction(float fraction);
