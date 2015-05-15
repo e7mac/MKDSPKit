@@ -136,31 +136,48 @@ void GranularLine::readGrain(int grainNum, int numSamples, float* destination) {
 
   int processedSamples = 0;
   while (processedSamples < numSamples) {
-    int remainingSamples = numSamples - processedSamples;
+    int remainingSamples = (numSamples - processedSamples);
+    int remainingSamplesGrainCanProvide = remainingSamples / readSpeed;
     int bufferPosition = grains[grainNum].readHead+grains[grainNum].elapsed;
     int samplesToCopy = 0;
     float startFraction = 0;
     float endFraction = 0;
-    
     startFraction = grains[grainNum].elapsed / grains[grainNum].grainLength;
     
-    if (remainingSamples + grains[grainNum].elapsed == grains[grainNum].grainLength) {
-      samplesToCopy = remainingSamples;
+    if (!remainingSamplesGrainCanProvide || remainingSamplesGrainCanProvide + grains[grainNum].elapsed  == grains[grainNum].grainLength) {
+      printf("1");
+      samplesToCopy = remainingSamplesGrainCanProvide;
       endFraction = (samplesToCopy + grains[grainNum].elapsed) / grains[grainNum].grainLength;
       resetGrain(grainNum);
-    } else if (remainingSamples + grains[grainNum].elapsed < grains[grainNum].grainLength) {
-      samplesToCopy = remainingSamples;
+    } else if (remainingSamplesGrainCanProvide + grains[grainNum].elapsed < grains[grainNum].grainLength) {
+      printf("2");
+      samplesToCopy = remainingSamplesGrainCanProvide;
       endFraction = (samplesToCopy + grains[grainNum].elapsed) / grains[grainNum].grainLength;
-    } else if (remainingSamples + grains[grainNum].elapsed > grains[grainNum].grainLength) {
+    } else if (remainingSamplesGrainCanProvide + grains[grainNum].elapsed > grains[grainNum].grainLength) {
+      printf("3");
       int remainingSamplesInGrain = grains[grainNum].grainLength - grains[grainNum].elapsed;
       samplesToCopy = remainingSamplesInGrain;
       endFraction = (samplesToCopy + grains[grainNum].elapsed) / grains[grainNum].grainLength;
       resetGrain(grainNum);
     }
+    //get output buffer based on readspeed
+//    printf("%i\n samples : ", samplesToCopy);
+    float indexBuffer[samplesToCopy];
+    float start = bufferPosition;
+    float increment = readSpeed;
+    
+    vDSP_vramp(&start, &increment, indexBuffer, 1, samplesToCopy);
+    float audioBufferLength = length;
+    vDSP_vsdiv(indexBuffer, 1, &audioBufferLength, indexBuffer, 1, samplesToCopy);
+    vDSP_vfrac(indexBuffer, 1, indexBuffer, 1, samplesToCopy);
+    vDSP_vsmul(indexBuffer, 1, &audioBufferLength, indexBuffer, 1, samplesToCopy);
+    vDSP_vlint(circularBuffer, indexBuffer, 1, &output[processedSamples], 1, samplesToCopy, length);
+    
+//    memcpy(&output[processedSamples], &circularBuffer[bufferPosition], samplesToCopy*sizeof(float));
+    //window multiply
     float window[samplesToCopy];
     getWindow(window, startFraction, endFraction, samplesToCopy);
     vDSP_vmul(window, 1, &output[processedSamples], 1, &output[processedSamples], 1, samplesToCopy);
-    memcpy(&output[processedSamples], &circularBuffer[bufferPosition], samplesToCopy*sizeof(float));
     processedSamples += samplesToCopy;
     grains[grainNum].elapsed += samplesToCopy;
   }
@@ -178,12 +195,12 @@ void GranularLine::getWindow(float *destination, float startFraction, float endF
   if (endFraction > 1 || isnan(endFraction)) {
     endFraction = 1;
   }
-  float fractionDiff = endFraction - startFraction;
-  float fractionIncrement = fractionDiff / (count - 1);
+  float startIndex = startFraction * length;
+  float endIndex = endFraction * length;
+  float indexDiff = endIndex - startIndex;
+  float indexIncrement = indexDiff / (count - 1);
   float interpolationVector[count];
-  vDSP_vramp(&startFraction, &fractionIncrement, interpolationVector, 1, count);
-  float l = length;
-  vDSP_vsmul(interpolationVector, 1, &l, interpolationVector, 1, count);
+  vDSP_vramp(&startIndex, &indexIncrement, interpolationVector, 1, count);
   vDSP_vlint(cosValues, interpolationVector, 1, destination, 1, count, length);
 }
 
