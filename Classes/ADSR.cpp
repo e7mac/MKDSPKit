@@ -87,3 +87,13 @@ void ADSR::process (float input, float& output)
   }
   output = input *_envelope;
 }
+
+
+void ADSR::process (float *input, float *output, int numSamples)
+{
+  if (_mode == 4) {
+    
+  } else {
+    
+  }
+}

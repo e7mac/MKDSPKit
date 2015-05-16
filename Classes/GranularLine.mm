@@ -178,35 +178,46 @@ void GranularLine::readGrain(int grainNum, int numSamples, float* destination) {
     vDSP_vmul(window, 1, &output[processedSamples], 1, &output[processedSamples], 1, samplesToCopy);
     processedSamples += samplesToCopy;
   }
-  float grainAmplitude = gain * grains[grainNum].currentNumGrainsAmplitude;
+  float grainAmplitude =  gain * grains[grainNum].currentNumGrainsAmplitude;
   vDSP_vsmul(output, 1, &grainAmplitude, destination, 1, numSamples);
   return;
 }
 
 void GranularLine::getWindow(float *destination, float startFraction, float endFraction, int count)
 {
+//  if (count == 1) {
+//    memset(destination, 0, 1);
+//    return;
+//  }
   if (startFraction < 0 || isnan(startFraction)) {
     startFraction = 0;
   }
   if (endFraction > 1 || isnan(endFraction)) {
     endFraction = 1;
   }
+//  if (endFraction == startFraction) {
+//    int windowCount = 2048;
+//    float hann[windowCount];
+//    vDSP_hann_window(&hann[0], windowCount, 0);
+//    int startIndex = startFraction * windowCount;
+//    vDSP_vfill(&hann[startIndex], destination, 1, count);
+//  } else {
+//    float fractionDiff = endFraction - startFraction;
+//    int windowCount = count / fractionDiff;
+//    float hann[windowCount];
+//    vDSP_hann_window(&hann[0], windowCount, 0);
+//    int startIndex = startFraction * windowCount;
+//    float zero = 0;
+//    vDSP_vsadd(&hann[startIndex], 1, &zero, destination, 1, count);
+//  }
+  //-------------
   float startIndex = startFraction * (WINDOW_LENGTH);
   float endIndex = endFraction * (WINDOW_LENGTH);
   float indexDiff = endIndex - startIndex;
-  float indexIncrement = indexDiff / (count - 1);
+  float indexIncrement = indexDiff / (count);
   float interpolationVector[count];
   vDSP_vramp(&startIndex, &indexIncrement, interpolationVector, 1, count);
   vDSP_vlint(cosValues, interpolationVector, 1, destination, 1, count, WINDOW_LENGTH);
-  for (int k=0;k<count;k++) {
-    if (destination[k] != destination[k]) {
-      printf("\n.%f", interpolationVector[k-1]);
-      printf("\n.-%f", interpolationVector[k]);
-      printf("\n.--%f", interpolationVector[k+1]);
-      printf("\n%f", destination[k]);
-      destination[k] = 1;
-    }
-  }
 }
 
 

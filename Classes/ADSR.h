@@ -14,7 +14,10 @@
 class ADSR {
 public:
   double	_a, _d, _s, _r, _envelope, _fs, _aSlope, _dSlope, _rFactor;
+  double	*_aEnvelope, *_dEnvelope, *_rEnvelope;
+  int	_aEnvelopeCount, *_dEnvelopeCount, *_rEnvelopeCount;
   int _mode;
+  
 public:
   ADSR();
   void setAttackTime(double a);
@@ -25,6 +28,7 @@ public:
   void noteOn();
   void noteOff();
   void process (float input, float& output);
+  void process (float *input, float *output, int numSamples);
 };
 
 
