@@ -58,7 +58,10 @@ public:
     void getWindow(float *destination, float startIndex, float endIndex, int count);
     void populateWindow();
     void setRate(float withRate);
-  void setBackwardDirectionFraction(float fraction);
+    void setBackwardDirectionFraction(float fraction);
+    void randomVector(float *destination, int numSamples);
+    void readSpeedVariationVector(float *destination, int numSamples);
+    void directionVariationVector(float *destination, int numSamples);
 };
 
 

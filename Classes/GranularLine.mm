@@ -114,6 +114,30 @@ float GranularLine::readGrain(int i) {
   return sample*grains[i].currentNumGrainsAmplitude;
 }
 
+void GranularLine::randomVector(float *destination, int numSamples)
+{
+  for (int i=0;i<numSamples;i++) destination[i] = arc4random_uniform(200)/200.;
+}
+
+void GranularLine::readSpeedVariationVector(float *destination, int numSamples)
+{
+  randomVector(destination, numSamples);
+  float minus_half = -0.5;
+  vDSP_vsadd(destination, 1, &minus_half, destination, 1, numSamples);
+  float twoIntoReadSpeedVariation = 2 * readSpeedVariation;
+  vDSP_vsmul(destination, 1, &twoIntoReadSpeedVariation, destination, 1, numSamples);
+}
+
+void GranularLine::directionVariationVector(float *destination, int numSamples)
+{
+  randomVector(destination, numSamples);
+  float minusReadSpeedDirectionPercentage = -readSpeedDirectionPercentage;
+  vDSP_vsadd(destination, 1, &minusReadSpeedDirectionPercentage, destination, 1, numSamples);
+  float absValue[numSamples];
+  vDSP_vabs(destination, 1, absValue, 1, numSamples);
+  vDSP_vdiv(destination, 1, absValue, 1, destination, 1, numSamples);
+}
+
 void GranularLine::readGrain(int grainNum, int numSamples, float* destination) {
   float output[numSamples];
   int processedSamples = 0;
@@ -144,10 +168,23 @@ void GranularLine::readGrain(int grainNum, int numSamples, float* destination) {
     float increment = readSpeed;
     
     vDSP_vramp(&start, &increment, indexBuffer, 1, samplesToCopy);
+    //multiply read speed variation
+//    float readSpeedVariation[samplesToCopy];
+//    readSpeedVariationVector(readSpeedVariation, samplesToCopy);
+//    vDSP_vsmul(indexBuffer, 1, readSpeedVariation, indexBuffer, 1, samplesToCopy);
+
+    //multiply direction variation
+//    float directionVariation[samplesToCopy];
+//    directionVariationVector(directionVariation, samplesToCopy);
+//    vDSP_vsmul(indexBuffer, 1, directionVariation, indexBuffer, 1, samplesToCopy);
+
     float audioBufferLength = length;
+    //wrap around audiobuffer
     vDSP_vsdiv(indexBuffer, 1, &audioBufferLength, indexBuffer, 1, samplesToCopy);
     vDSP_vfrac(indexBuffer, 1, indexBuffer, 1, samplesToCopy);
     vDSP_vsmul(indexBuffer, 1, &audioBufferLength, indexBuffer, 1, samplesToCopy);
+    //end wrap around audiobuffer
+    
     vDSP_vlint(circularBuffer, indexBuffer, 1, &output[processedSamples], 1, samplesToCopy, length);
     
     //window multiply
