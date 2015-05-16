@@ -185,32 +185,12 @@ void GranularLine::readGrain(int grainNum, int numSamples, float* destination) {
 
 void GranularLine::getWindow(float *destination, float startFraction, float endFraction, int count)
 {
-//  if (count == 1) {
-//    memset(destination, 0, 1);
-//    return;
-//  }
   if (startFraction < 0 || isnan(startFraction)) {
     startFraction = 0;
   }
   if (endFraction > 1 || isnan(endFraction)) {
     endFraction = 1;
   }
-//  if (endFraction == startFraction) {
-//    int windowCount = 2048;
-//    float hann[windowCount];
-//    vDSP_hann_window(&hann[0], windowCount, 0);
-//    int startIndex = startFraction * windowCount;
-//    vDSP_vfill(&hann[startIndex], destination, 1, count);
-//  } else {
-//    float fractionDiff = endFraction - startFraction;
-//    int windowCount = count / fractionDiff;
-//    float hann[windowCount];
-//    vDSP_hann_window(&hann[0], windowCount, 0);
-//    int startIndex = startFraction * windowCount;
-//    float zero = 0;
-//    vDSP_vsadd(&hann[startIndex], 1, &zero, destination, 1, count);
-//  }
-  //-------------
   float startIndex = startFraction * (WINDOW_LENGTH);
   float endIndex = endFraction * (WINDOW_LENGTH);
   float indexDiff = endIndex - startIndex;
