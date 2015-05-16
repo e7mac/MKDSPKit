@@ -25,7 +25,8 @@ public:
     Compressor(){};
     Compressor(float threshold,float ratio, int srate);
     void setupCompressor(float threshold,float ratio, int srate);
-    void process(float input, float&output);
+  void process(float input, float&output);
+  void process(float input, float&output, int numSamples);
 };
 
 

@@ -11,6 +11,8 @@
 #include "GranularLine.h"
 #import <Accelerate/Accelerate.h>
 
+#define WINDOW_LENGTH 2048
+
 void GranularLine::resetGrain(int i)
 {
     float lowerBound = fmaxf((avgDelay - 2 * spread * maxSpread * 0.5), 0);// + 0.01 * srate / length);
@@ -95,8 +97,7 @@ void GranularLine::write(float *firstSample, int numSamples) {
 }
 
 float GranularLine::readGrain(int i) {
-    float window = getWindow((float)grains[i].elapsed/grains[i].grainLength);
-  
+    float window = getWindow((float)grains[i].elapsed/grains[i].grainLength);  
     int direction =  (arc4random_uniform(100)/100. > readSpeedDirectionPercentage) ? 1 : -1;
     float variation = arc4random_uniform(readSpeedVariation*44100)/44100.;
     grains[i].elapsed += readSpeed * (1 + direction*variation);
@@ -109,11 +110,34 @@ float GranularLine::readGrain(int i) {
     if (grains[i].elapsed>=grains[i].grainLength) {
         resetGrain(i);
     }
-    return gain*sample*grains[i].currentNumGrainsAmplitude;
+//  return gain*sample*grains[i].currentNumGrainsAmplitude;
+  return sample*grains[i].currentNumGrainsAmplitude;
 }
 
 void GranularLine::readGrain(int grainNum, int numSamples, float* destination) {
   float output[numSamples];
+//  for (int i=0;i<numSamples;i++) {
+////    output[i] = readGrain(grainNum);
+//    
+//    //in function implementation
+//    // scalar
+//    grains[grainNum].elapsed += readSpeed;
+//    int bufferPosition = (int)(grains[grainNum].readHead+grains[grainNum].direction*grains[grainNum].elapsed)%length;
+//    if (bufferPosition < 0) {
+//      bufferPosition += length;
+//    }
+//    if (grains[grainNum].elapsed>=grains[grainNum].grainLength) {
+//      resetGrain(grainNum);
+//    }
+//    float sample = circularBuffer[bufferPosition];
+//    
+//    
+//    
+//    //apply window
+////    float window = getWindow((float)grains[grainNum].elapsed/grains[grainNum].grainLength);
+////    sample *= window;
+//    output[i] = sample*grains[grainNum].currentNumGrainsAmplitude;
+//  }
   int processedSamples = 0;
   while (processedSamples < numSamples) {
     int remainingSamples = (numSamples - processedSamples);
@@ -150,12 +174,13 @@ void GranularLine::readGrain(int grainNum, int numSamples, float* destination) {
     
     //window multiply
     float window[samplesToCopy];
-    getWindow(window, startFraction, endFraction, samplesToCopy);
+    getWindow(&window[0], startFraction, endFraction, samplesToCopy);
     vDSP_vmul(window, 1, &output[processedSamples], 1, &output[processedSamples], 1, samplesToCopy);
     processedSamples += samplesToCopy;
   }
   float grainAmplitude = gain * grains[grainNum].currentNumGrainsAmplitude;
   vDSP_vsmul(output, 1, &grainAmplitude, destination, 1, numSamples);
+  return;
 }
 
 void GranularLine::getWindow(float *destination, float startFraction, float endFraction, int count)
@@ -166,13 +191,22 @@ void GranularLine::getWindow(float *destination, float startFraction, float endF
   if (endFraction > 1 || isnan(endFraction)) {
     endFraction = 1;
   }
-  float startIndex = startFraction * length;
-  float endIndex = endFraction * length;
+  float startIndex = startFraction * (WINDOW_LENGTH);
+  float endIndex = endFraction * (WINDOW_LENGTH);
   float indexDiff = endIndex - startIndex;
   float indexIncrement = indexDiff / (count - 1);
   float interpolationVector[count];
   vDSP_vramp(&startIndex, &indexIncrement, interpolationVector, 1, count);
-  vDSP_vlint(cosValues, interpolationVector, 1, destination, 1, count, length);
+  vDSP_vlint(cosValues, interpolationVector, 1, destination, 1, count, WINDOW_LENGTH);
+  for (int k=0;k<count;k++) {
+    if (destination[k] != destination[k]) {
+      printf("\n.%f", interpolationVector[k-1]);
+      printf("\n.-%f", interpolationVector[k]);
+      printf("\n.--%f", interpolationVector[k+1]);
+      printf("\n%f", destination[k]);
+      destination[k] = 1;
+    }
+  }
 }
 
 
@@ -181,15 +215,15 @@ float GranularLine::getWindow(float x)
 {
     if (x>1 || isnan(x))
         return 0.0;
-    int index = x*length;
+    int index = x*WINDOW_LENGTH;
     return cosValues[index];
 }
 
 void GranularLine::populateWindow()
 {
-    cosValues = new float[length];
-    for (int i=0;i<length;i++)
-        cosValues[i] = 0.5-0.5*cosf(2*M_PI*i/length);
+    cosValues = new float[WINDOW_LENGTH];
+    for (int i=0;i<WINDOW_LENGTH;i++)
+        cosValues[i] = 0.5-0.5*cosf(2*M_PI*i/WINDOW_LENGTH);
 }
 
 
