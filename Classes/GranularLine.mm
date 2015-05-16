@@ -116,28 +116,6 @@ float GranularLine::readGrain(int i) {
 
 void GranularLine::readGrain(int grainNum, int numSamples, float* destination) {
   float output[numSamples];
-//  for (int i=0;i<numSamples;i++) {
-////    output[i] = readGrain(grainNum);
-//    
-//    //in function implementation
-//    // scalar
-//    grains[grainNum].elapsed += readSpeed;
-//    int bufferPosition = (int)(grains[grainNum].readHead+grains[grainNum].direction*grains[grainNum].elapsed)%length;
-//    if (bufferPosition < 0) {
-//      bufferPosition += length;
-//    }
-//    if (grains[grainNum].elapsed>=grains[grainNum].grainLength) {
-//      resetGrain(grainNum);
-//    }
-//    float sample = circularBuffer[bufferPosition];
-//    
-//    
-//    
-//    //apply window
-////    float window = getWindow((float)grains[grainNum].elapsed/grains[grainNum].grainLength);
-////    sample *= window;
-//    output[i] = sample*grains[grainNum].currentNumGrainsAmplitude;
-//  }
   int processedSamples = 0;
   while (processedSamples < numSamples) {
     int remainingSamples = (numSamples - processedSamples);
