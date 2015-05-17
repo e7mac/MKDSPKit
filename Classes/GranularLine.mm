@@ -11,6 +11,7 @@
 #include "GranularLine.h"
 #import <Accelerate/Accelerate.h>
 
+#define PREALLOC_BUFFER_SIZE 10240
 #define WINDOW_LENGTH 2048
 
 void GranularLine::resetGrain(int i)
@@ -82,7 +83,6 @@ void GranularLine::write(float withSample) {
 }
 
 void GranularLine::write(float *firstSample, int numSamples) {
-  // todo: handle rates
   int samplesFromStart = 0;
   int samplesTillEnd = length - writeHead;
   if (numSamples <= samplesTillEnd) {
@@ -110,8 +110,7 @@ float GranularLine::readGrain(int i) {
     if (grains[i].elapsed>=grains[i].grainLength) {
         resetGrain(i);
     }
-//  return gain*sample*grains[i].currentNumGrainsAmplitude;
-  return sample*grains[i].currentNumGrainsAmplitude;
+  return gain*sample*grains[i].currentNumGrainsAmplitude;
 }
 
 void GranularLine::randomVector(float *destination, int numSamples)
