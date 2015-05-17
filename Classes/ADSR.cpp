@@ -8,6 +8,7 @@
 
 #include "ADSR.h"
 #include <math.h>
+#include <Accelerate/Accelerate.h>
 
 ADSR::ADSR()
 {
@@ -46,7 +47,8 @@ void ADSR::noteOff()
 {
   _mode = 4;
 }
-void ADSR::process (float input, float& output)
+
+void ADSR::updateEnvelope ()
 {
   switch (_mode) {
     case 1://a
@@ -85,15 +87,17 @@ void ADSR::process (float input, float& output)
     default:
       break;
   }
+}
+void ADSR::process (float input, float& output)
+{
+  updateEnvelope();
   output = input *_envelope;
 }
 
 
 void ADSR::process (float *input, float *output, int numSamples)
 {
-  if (_mode == 4) {
-    
-  } else {
-    
-  }
+  // TODO: this doesn't work yet, need to vectorize envelope
+  updateEnvelope();
+  vDSP_vsmul(input, 1, &_envelope, output, 1, numSamples);
 }

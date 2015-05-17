@@ -13,7 +13,8 @@
 
 class ADSR {
 public:
-  double	_a, _d, _s, _r, _envelope, _fs, _aSlope, _dSlope, _rFactor;
+  double	_a, _d, _s, _r, _fs, _aSlope, _dSlope, _rFactor;
+  float _envelope;
   double	*_aEnvelope, *_dEnvelope, *_rEnvelope;
   int	_aEnvelopeCount, *_dEnvelopeCount, *_rEnvelopeCount;
   int _mode;
@@ -27,6 +28,7 @@ public:
   void reset();
   void noteOn();
   void noteOff();
+  void updateEnvelope ();
   void process (float input, float& output);
   void process (float *input, float *output, int numSamples);
 };
