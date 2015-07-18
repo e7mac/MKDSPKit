@@ -1,4 +1,4 @@
-
+ 
 
 //
 //  GranularLine.cpp
@@ -167,23 +167,36 @@ void GranularLine::readGrain(int grainNum, int numSamples, float* destination) {
     float increment = readSpeed;
     
     vDSP_vramp(&start, &increment, indexBuffer, 1, samplesToCopy);
+// //--------scalar variation
+//    int direction =  (arc4random_uniform(100)/100. > readSpeedDirectionPercentage) ? 1 : -1;
+//    float variation = 1 + arc4random_uniform(readSpeedVariation*44100)/44100.;
+//    vDSP_vsmul(indexBuffer, 1, &variation, indexBuffer, 1, samplesToCopy);
+//    vDSP_vsmul(indexBuffer, 1, &variation, indexBuffer, 1, samplesToCopy);
+//    if (direction == -1) {
+//      vDSP_vrvrs(indexBuffer, 1, samplesToCopy);
+//    }
+// //-----end scalar variation
+// //--------vectorized variation
     //multiply read speed variation
-//    float readSpeedVariation[samplesToCopy];
-//    readSpeedVariationVector(readSpeedVariation, samplesToCopy);
-//    vDSP_vsmul(indexBuffer, 1, readSpeedVariation, indexBuffer, 1, samplesToCopy);
+//    float readSpeedVariationV[samplesToCopy];
+//    readSpeedVariationVector(readSpeedVariationV, samplesToCopy);
+//    vDSP_vsmul(indexBuffer, 1, readSpeedVariationV, indexBuffer, 1, samplesToCopy);
 
     //multiply direction variation
 //    float directionVariation[samplesToCopy];
 //    directionVariationVector(directionVariation, samplesToCopy);
 //    vDSP_vsmul(indexBuffer, 1, directionVariation, indexBuffer, 1, samplesToCopy);
-
-    float audioBufferLength = length;
+// //----end vectorized variation
     //wrap around audiobuffer
+    float audioBufferLength = length;
     vDSP_vsdiv(indexBuffer, 1, &audioBufferLength, indexBuffer, 1, samplesToCopy);
     vDSP_vfrac(indexBuffer, 1, indexBuffer, 1, samplesToCopy);
-    vDSP_vsmul(indexBuffer, 1, &audioBufferLength, indexBuffer, 1, samplesToCopy);
+    if (indexBuffer[0] >= 1 || indexBuffer[0] <=0) printf("\nwub:%f", indexBuffer[0]);
+//    for (int i=0;i<samplesToCopy;i++) {
+//      if (indexBuffer[i] >= 1 || indexBuffer[i] <=0) printf("\nwub:%f", indexBuffer[i]);
+//    }
     //end wrap around audiobuffer
-    
+    vDSP_vsmul(indexBuffer, 1, &audioBufferLength, indexBuffer, 1, samplesToCopy);
     vDSP_vlint(circularBuffer, indexBuffer, 1, &output[processedSamples], 1, samplesToCopy, length);
     
     //window multiply
