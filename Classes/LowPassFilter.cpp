@@ -11,13 +11,19 @@
 
 LowPassFilter::LowPassFilter(int cutoff, int fs)
 {
-    DSPUtilities::designFirstOrderLowpass(_coefs, cutoff, fs);
-    _eq.setCoefs(_coefs);
+  setCutoff(cutoff, fs);
 }
+
 void LowPassFilter::reset()
 {
 }
 void LowPassFilter::process (float input, float& output)
 {
     _eq.process(input, output);
+}
+
+void LowPassFilter::setCutoff(int cutoff, int fs)
+{
+    DSPUtilities::designFirstOrderLowpass(_coefs, cutoff, fs);
+    _eq.setCoefs(_coefs);
 }

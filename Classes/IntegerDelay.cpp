@@ -8,7 +8,7 @@
 
 #include "IntegerDelay.h"
 
-IntegerDelay::IntegerDelay(int withLength) {
+void IntegerDelay::setLength(int withLength) {
   length = withLength;           // remember the length
   delayLine = new float[length]; // instantiate delay line
   for (int i=0;i<length;i++) {

@@ -1,5 +1,3 @@
- 
-
 //
 //  GranularLine.cpp
 //  DSPLibrary
@@ -165,8 +163,8 @@ void GranularLine::readGrain(int grainNum, int numSamples, float* destination) {
     float indexBuffer[samplesToCopy];
     float start = bufferPosition;
     float increment = readSpeed;
-    
-    vDSP_vramp(&start, &increment, indexBuffer, 1, samplesToCopy);
+    if (start > 0)
+        vDSP_vramp(&start, &increment, indexBuffer, 1, samplesToCopy);
 // //--------scalar variation
 //    int direction =  (arc4random_uniform(100)/100. > readSpeedDirectionPercentage) ? 1 : -1;
 //    float variation = 1 + arc4random_uniform(readSpeedVariation*44100)/44100.;
@@ -191,8 +189,9 @@ void GranularLine::readGrain(int grainNum, int numSamples, float* destination) {
     float audioBufferLength = length;
     vDSP_vsdiv(indexBuffer, 1, &audioBufferLength, indexBuffer, 1, samplesToCopy);
     vDSP_vfrac(indexBuffer, 1, indexBuffer, 1, samplesToCopy);
-    if (indexBuffer[0] >= 1 || indexBuffer[0] <=0) printf("\nwub:%f", indexBuffer[0]);
-//    for (int i=0;i<samplesToCopy;i++) {
+//    if (indexBuffer[0] >= 1 || indexBuffer[0] <=0) printf("\nwub:%f", indexBuffer[0]);
+
+    //    for (int i=0;i<samplesToCopy;i++) {
 //      if (indexBuffer[i] >= 1 || indexBuffer[i] <=0) printf("\nwub:%f", indexBuffer[i]);
 //    }
     //end wrap around audiobuffer

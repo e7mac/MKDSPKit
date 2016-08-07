@@ -20,6 +20,7 @@ public:
     LowPassFilter(int cutoff, int fs);
     void reset();
     void process (float input, float& output);
+    void setCutoff(int cutoff, int fs);
 };
 
 
